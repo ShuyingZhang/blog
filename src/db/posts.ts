@@ -1,6 +1,5 @@
 import { eq, desc, isNull } from "drizzle-orm";
-import { db } from "./index";
-import { posts } from "./schema";
+import { db, getDb, schema } from "./index";
 
 export interface Post {
   id: number;
@@ -12,24 +11,30 @@ export interface Post {
 }
 
 export async function getAllPosts(): Promise<Post[]> {
-  const result = await db
+  const database = getDb();
+  const result = await database
     .select({
-      id: posts.id,
-      title: posts.title,
-      excerpt: posts.excerpt,
-      createdAt: posts.createdAt,
-      content: posts.content,
-      deletedAt: posts.deletedAt,
+      id: schema.posts.id,
+      title: schema.posts.title,
+      excerpt: schema.posts.excerpt,
+      createdAt: schema.posts.createdAt,
+      content: schema.posts.content,
+      deletedAt: schema.posts.deletedAt,
     })
-    .from(posts)
-    .where(isNull(posts.deletedAt))
-    .orderBy(desc(posts.createdAt));
+    .from(schema.posts)
+    .where(isNull(schema.posts.deletedAt))
+    .orderBy(desc(schema.posts.createdAt));
 
   return result as Post[];
 }
 
 export async function getPostById(id: number): Promise<Post | undefined> {
-  const result = await db.select().from(posts).where(eq(posts.id, id)).limit(1);
+  const database = getDb();
+  const result = await database
+    .select()
+    .from(schema.posts)
+    .where(eq(schema.posts.id, id))
+    .limit(1);
   return result[0] as Post | undefined;
 }
 
@@ -38,13 +43,18 @@ export async function createPost(
   content: string,
   excerpt?: string,
 ): Promise<Post> {
-  const result = await db
-    .insert(posts)
+  const database = getDb();
+  const result = await database
+    .insert(schema.posts)
     .values({ title, content, excerpt: excerpt || content.substring(0, 200) })
     .returning();
   return result[0] as Post;
 }
 
 export async function deletePost(id: number): Promise<void> {
-  await db.update(posts).set({ deletedAt: new Date() }).where(eq(posts.id, id));
+  const database = getDb();
+  await database
+    .update(schema.posts)
+    .set({ deletedAt: new Date() })
+    .where(eq(schema.posts.id, id));
 }
