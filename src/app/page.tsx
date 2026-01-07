@@ -2,7 +2,8 @@ import Link from "next/link";
 import { getAllPosts } from "@/db/posts";
 import { format } from "date-fns";
 
-export const revalidate = 60;
+// 强制动态渲染，避免构建时连接数据库
+export const dynamic = "force-dynamic";
 
 export default async function Home() {
   const posts = await getAllPosts();

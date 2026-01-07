@@ -4,6 +4,9 @@ import { format } from "date-fns";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 
+// 强制动态渲染，避免构建时连接数据库
+export const dynamic = "force-dynamic";
+
 interface Props {
   params: Promise<{ slug: string }>;
 }
