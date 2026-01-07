@@ -1,5 +1,6 @@
-import { eq, desc, isNull, inArray } from 'drizzle-orm';
-import { db, getDb, schema } from './index';
+import { eq, desc, isNull } from "drizzle-orm";
+import { db, getDb, schema } from "./index";
+import type { Post } from "./posts";
 
 export interface Category {
   id: number;
@@ -18,7 +19,9 @@ export async function getAllCategories(): Promise<Category[]> {
   return result as Category[];
 }
 
-export async function getPostsByCategory(slug: string): Promise<PostWithCategory[]> {
+export async function getPostsByCategory(
+  slug: string,
+): Promise<PostWithCategory[]> {
   const database = getDb();
 
   // 先找到分类ID
@@ -28,8 +31,6 @@ export async function getPostsByCategory(slug: string): Promise<PostWithCategory
     .where(eq(schema.categories.slug, slug));
 
   if (catResult.length === 0) return [];
-
-  const category = catResult[0] as Category;
 
   // 找到该分类下的所有文章
   const result = await database
@@ -46,7 +47,10 @@ export async function getPostsByCategory(slug: string): Promise<PostWithCategory
     })
     .from(schema.postCategories)
     .innerJoin(schema.posts, eq(schema.postCategories.postId, schema.posts.id))
-    .innerJoin(schema.categories, eq(schema.postCategories.categoryId, schema.categories.id))
+    .innerJoin(
+      schema.categories,
+      eq(schema.postCategories.categoryId, schema.categories.id),
+    )
     .where(isNull(schema.posts.deletedAt))
     .orderBy(desc(schema.posts.createdAt));
 
