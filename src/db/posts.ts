@@ -10,7 +10,15 @@ export interface Post {
   deletedAt: Date | null;
 }
 
+// 检查是否在构建时
+const isBuildTime = process.env.NEXT_PHASE === "build";
+
 export async function getAllPosts(): Promise<Post[]> {
+  // 构建时返回空数组
+  if (isBuildTime) {
+    return [];
+  }
+
   const database = getDb();
   const result = await database
     .select({
@@ -29,6 +37,10 @@ export async function getAllPosts(): Promise<Post[]> {
 }
 
 export async function getPostById(id: number): Promise<Post | undefined> {
+  if (isBuildTime) {
+    return undefined;
+  }
+
   const database = getDb();
   const result = await database
     .select()
