@@ -19,9 +19,9 @@ function getDb() {
 
 export const db = new Proxy({} as ReturnType<typeof drizzle>, {
   get(target, prop) {
-    const db = getDb();
-    return Reflect.get(db, prop);
+    const database = getDb();
+    return Reflect.get(database, prop);
   },
 });
 
-export { schema };
+export { schema, getDb };
