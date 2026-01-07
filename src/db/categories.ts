@@ -63,7 +63,7 @@ export async function getPostsByCategory(
         title: row.title,
         excerpt: row.excerpt,
         content: row.content,
-        createdAt: row.createdAt,
+        createdAt: row.createdAt || new Date(),
         deletedAt: row.deletedAt,
         categories: [],
       });
